@@ -14,15 +14,11 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
 import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
-
 import org.json.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,11 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import kr.co.namee.permissiongen.PermissionFail;
 import kr.co.namee.permissiongen.PermissionGen;
 import kr.co.namee.permissiongen.PermissionSuccess;
@@ -79,6 +73,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 if(safephoto){
                     safephoto = false;
                     text_card.setText("拍摄人脸照片！");
+                    deleteFile();
                     camera.takePicture(null, null, jpeg);
                 }else {
                     handler.postDelayed(this, 500);
@@ -105,14 +100,29 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     private void initYingjian() {
         rkGpioControlNative.init();
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, 1000);
     }
 
+    private void deleteFile(){
+        if(!TextUtils.isEmpty(filePath)){
+            File file = new File(filePath);
+            if(file!=null){
+                if(file.exists()){
+                    file.delete();
+                }
+            }
+        }
+    }
+
+
     private void uploadPhoto() {
+        safephoto = true;
+        camera.startPreview();
+        handler.postDelayed( runnable, 1000);
         File  file = new File(filePath);
         if(!file.exists()){
             UtilToast.showToast(CameraActivity.this,"文件不存在！");
-            handler.postDelayed(runnable, 2000);
+            handler.postDelayed(runnable, 1000);
             return;
         }
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -125,22 +135,13 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 .subscribe(new Observer<JSONObject>() {
                     @Override
                     public void onCompleted() {
-                        safephoto = true;
-                        camera.startPreview();
-                        handler.postDelayed( runnable, 2000);
-                        if(!TextUtils.isEmpty(filePath)){
-                            File file = new File(filePath);
-                            if(file!=null){
-                                if(file.exists()){
-                                    file.delete();
-                                }
-                            }
-                        }
+
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        text_card.setText("人脸照片失败！");
+                        text_card.setText("人脸检测成功！");
                     }
 
                     @Override
@@ -151,15 +152,16 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                                 JSONObject result = jsonObject.optJSONObject("result");
                                 boolean isSuccess=  result.optBoolean("success");
                                 if(isSuccess){
-                                    text_card.setText("人脸照片已上传！");
+                                    text_card.setText("人脸检测成功！");
                                 }else {
-                                    text_card.setText("人脸照片失败！");
+                                    text_card.setText("人脸检测失败！");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     }
+
                 });
     }
 
