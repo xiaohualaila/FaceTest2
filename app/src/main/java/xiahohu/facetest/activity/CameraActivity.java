@@ -141,7 +141,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
                     @Override
                     public void onError(Throwable e) {
-                        text_card.setText("人脸检测成功！");
+                        text_card.setText("人脸检测失败！");
                     }
 
                     @Override
@@ -195,6 +195,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private Camera.PictureCallback jpeg = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
+            stopPreview();
             filePath = FileUtil.getPath() + File.separator + getTime() + ".jpeg";
             Matrix matrix = new Matrix();
             matrix.reset();
@@ -223,7 +224,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 bm.recycle();
                 bm1.recycle();
-                stopPreview();
                 uploadPhoto();
             }
         }
