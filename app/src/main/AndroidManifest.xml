@@ -17,10 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity" android:screenOrientation="portrait">
-
-
-        </activity>
         <activity android:name=".activity.CameraActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,6 +25,7 @@
             </intent-filter>
 
         </activity>
+        <service android:name=".service.MyService"/>
 
         <receiver android:name=".broadcastReceiver.BootBroadcastReceiver"
             android:enabled="true"

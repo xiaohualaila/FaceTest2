@@ -1,11 +1,13 @@
 package xiahohu.facetest.Util;
 
 import android.os.Environment;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Calendar;
 
 /**
  * Created by xyuxiao on 2016/9/23.
@@ -74,5 +76,20 @@ public class FileUtil {
             System.out.println("复制单个文件操作出错");
             e.printStackTrace();
         }
+    }
+
+    public static void deleteFile(String filePath){
+        if(!TextUtils.isEmpty(filePath)){
+            File file = new File(filePath);
+            if(file!=null){
+                if(file.exists()){
+                    file.delete();
+                }
+            }
+        }
+    }
+
+    public static long getTime() {
+        return Calendar.getInstance().getTimeInMillis();
     }
 }

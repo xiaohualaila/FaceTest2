@@ -1,46 +1,45 @@
 package xiahohu.facetest.activity;
 
-import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.cmm.rkadcreader.adcNative;
-import com.cmm.rkgpiocontrol.rkGpioControlNative;
+
 import org.json.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import kr.co.namee.permissiongen.PermissionFail;
-import kr.co.namee.permissiongen.PermissionGen;
-import kr.co.namee.permissiongen.PermissionSuccess;
+import butterknife.OnClick;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import xiahohu.facetest.Util.UtilToast;
+import xiahohu.facetest.service.MyService;
 import xiahohu.facetest.R;
 import xiahohu.facetest.Util.FileUtil;
-import xiahohu.facetest.Util.UtilToast;
+import xiahohu.facetest.bean.MyMessage;
+import xiahohu.facetest.rx.RxBus;
 import xiahohu.retrofit.Api;
 import xiahohu.retrofit.ConnectUrl;
 
@@ -55,7 +54,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     SurfaceView camera_sf;
     @Bind(R.id.text_card)
     TextView text_card;
-
     private Camera camera;
     private String filePath;
     private SurfaceHolder holder;
@@ -63,27 +61,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private boolean safephoto  =true;
     private int width = 640;
     private int height = 480;
-    Handler handler=new Handler();
 
-    Runnable runnable=new Runnable() {
-        @Override
-        public void run() {
-            int val = rkGpioControlNative.ReadGpio(4);
-            if(val==0){
-                if(safephoto){
-                    safephoto = false;
-                    text_card.setText("拍摄人脸照片！");
-                    deleteFile();
-                    camera.takePicture(null, null, jpeg);
-                }else {
-                    handler.postDelayed(this, 500);
-                }
-            }else {
-                text_card.setText("");
-                handler.postDelayed(this, 500);
-            }
+    @OnClick({R.id.take_photo})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.take_photo:
+                safephoto = false;
+               // text_card.setText("拍摄人脸照片！");
+                camera.takePicture(null, null, jpeg);
+                break;
         }
-    };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,16 +79,25 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_camera2);
         ButterKnife.bind(this);
-        permiss();
         holder = camera_sf.getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        initYingjian();
+        startService(new Intent(this, MyService.class));
+        RxBus.getDefault().toObserverable(MyMessage.class).subscribe(myMessage -> {
+            starPhoto(myMessage.getNum());
+        });
     }
 
-    private void initYingjian() {
-        rkGpioControlNative.init();
-        handler.postDelayed(runnable, 1000);
+    private void starPhoto(int num){
+        if ( num == 0) {
+            if (safephoto) {
+                safephoto = false;
+               //text_card.setText("拍摄人脸照片！");
+                deleteFile();
+                camera.takePicture(null, null, jpeg);
+                Log.i("sss", "拍摄人脸照片");
+            }
+        }
     }
 
     private void deleteFile(){
@@ -114,15 +111,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-
     private void uploadPhoto() {
-        safephoto = true;
-        camera.startPreview();
-        handler.postDelayed( runnable, 1000);
         File  file = new File(filePath);
         if(!file.exists()){
-            UtilToast.showToast(CameraActivity.this,"文件不存在！");
-            handler.postDelayed(runnable, 1000);
+            uploadFinish();
             return;
         }
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -135,60 +127,40 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 .subscribe(new Observer<JSONObject>() {
                     @Override
                     public void onCompleted() {
-
-
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        text_card.setText("人脸检测失败！");
+                        UtilToast.showToast(CameraActivity.this,"人脸检测失败！");
+                        uploadFinish();
                     }
 
                     @Override
                     public void onNext(JSONObject jsonObject) {
-                       // Log.i("sss",jsonObject.toString());
-                        if(jsonObject!=null){
+                        Log.i("sss",jsonObject.toString());
+                        if(jsonObject != null){
                             try {
                                 JSONObject result = jsonObject.optJSONObject("result");
                                 boolean isSuccess=  result.optBoolean("success");
                                 if(isSuccess){
-                                    text_card.setText("人脸检测成功！");
+                                    UtilToast.showToast(CameraActivity.this,"人脸检测成功！");
                                 }else {
-                                    text_card.setText("人脸检测失败！");
+                                    UtilToast.showToast(CameraActivity.this,"人脸检测失败！");
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            }finally {
+                                uploadFinish();
                             }
                         }
                     }
-
                 });
     }
 
-
-    private void permiss(){
-        PermissionGen.needPermission(this, 200, new String[]{
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE
-        });
-    }
-
-    @PermissionSuccess(requestCode = 200)
-    public void toLocation() {
-
-    }
-
-    @PermissionFail(requestCode = 200)
-    public void toLocationFail() {
-        Toast.makeText(this, "请打开相机权限！", Toast.LENGTH_LONG).show();
-    }
-
-
-
-    public long getTime() {
-        return Calendar.getInstance().getTimeInMillis();
+    private void uploadFinish() {
+        safephoto = true;
+        camera.startPreview();
+        Log.i("sss","onCompleted检测完成！");
     }
 
 
@@ -196,7 +168,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             stopPreview();
-            filePath = FileUtil.getPath() + File.separator + getTime() + ".jpeg";
+            filePath = FileUtil.getPath() + File.separator + FileUtil.getTime() + ".jpeg";
             Matrix matrix = new Matrix();
             matrix.reset();
             matrix.postRotate(270);
@@ -248,8 +220,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     protected void onDestroy() {
         super.onDestroy();
         closeCamera();
-        handler.removeCallbacks(runnable);
         FileUtil.deleteDir(FileUtil.getPath());
+        stopService( new Intent(this, MyService.class));
     }
 
     @Override
@@ -288,17 +260,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         } else {
             return;
         }
-
-        // 选择合适的预览尺寸
-//        List<Camera.Size> sizeList = para.getSupportedPreviewSizes();
-//        if (sizeList.size() > 1) {
-//            Iterator<Camera.Size> itor = sizeList.iterator();
-//            while (itor.hasNext()) {
-//                Camera.Size cur = itor.next();
-//                Log.i("xxx",cur.width+"--"+cur.height);
-//            }
-//        }
-
         para.setPreviewSize(width, height);
         setPictureSize(para,640 , 480);
         para.setPictureFormat(ImageFormat.JPEG);//设置图片格式
@@ -372,11 +333,4 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        adcNative.close(0);
-        adcNative.close(2);
-        rkGpioControlNative.close();
-    }
 }
