@@ -55,5 +55,6 @@ dependencies {
     compile 'com.trello:rxlifecycle-components:0.6.1'
     compile 'com.lovedise:permissiongen:0.0.6'
     compile 'com.jakewharton.rxbinding:rxbinding:1.0.1'
+    compile files('libs/jxl.jar')
 
 }

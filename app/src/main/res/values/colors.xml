@@ -7,4 +7,9 @@
     <color name="blue1">#00bfff</color>
     <color name="white">#fff</color>
     <color name="yellow">#c29905</color>
+    <color name="background">#c8e8f1</color>
+    <color name="right_background">#005bbf</color>
+    <color name="clear_edit_text">#00f3fe</color>
+    <color name="switch_on">#05a1f5</color>
+    <color name="switch_off">#979898</color>
 </resources>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import xiahohu.facetest.activity.CameraActivity;
+import xiahohu.facetest.activity.SetUpActivity;
 
 /**
  * Created by admin on 2017/11/2.
@@ -15,7 +16,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
           if(intent.getAction().equals(action_boot)){
-			  Intent in  = new Intent(context,CameraActivity.class);
+			  Intent in  = new Intent(context,SetUpActivity.class);
 			  in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			  context.startActivity(in);
 		  }

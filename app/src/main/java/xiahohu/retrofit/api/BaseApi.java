@@ -22,5 +22,8 @@ public interface BaseApi {
     Observable<JSONObject> uploadPhoto(
             @Part List<MultipartBody.Part> file
     );
+
+    @POST("validate.php")
+    Observable<JSONObject> checkIp();
 }
 

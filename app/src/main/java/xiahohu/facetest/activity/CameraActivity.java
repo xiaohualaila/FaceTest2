@@ -66,9 +66,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-                safephoto = false;
-               // text_card.setText("拍摄人脸照片！");
-                camera.takePicture(null, null, jpeg);
+                if(safephoto){
+                    safephoto = false;
+                    // text_card.setText("拍摄人脸照片！");
+                    camera.takePicture(null, null, jpeg);
+                }
                 break;
         }
     }
@@ -98,6 +100,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 Log.i("sss", "拍摄人脸照片");
             }
         }
+
     }
 
     private void deleteFile(){
