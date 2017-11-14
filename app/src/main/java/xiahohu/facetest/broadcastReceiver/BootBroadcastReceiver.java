@@ -4,19 +4,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import xiahohu.facetest.activity.CameraActivity;
-import xiahohu.facetest.activity.SetUpActivity;
+import xiahohu.facetest.activity.LoginActivity;
 
 /**
  * Created by admin on 2017/11/2.
  */
 
 public class BootBroadcastReceiver extends BroadcastReceiver{
-    public static final String action_boot = "android.intent.action.BOOT_COMPLETED";
+    public static final String ACTION = "android.intent.action.BOOT_COMPLETED";
     @Override
     public void onReceive(Context context, Intent intent) {
-          if(intent.getAction().equals(action_boot)){
-			  Intent in  = new Intent(context,SetUpActivity.class);
+          if(intent.getAction().equals(ACTION)){
+			  Intent in  = new Intent(context,LoginActivity.class);
 			  in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			  context.startActivity(in);
 		  }

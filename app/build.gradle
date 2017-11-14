@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'org.greenrobot.greendao'
 android {
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
@@ -34,6 +34,19 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.1'
+    }
+}
+greendao {
+    schemaVersion 1
+    daoPackage 'xiaohu.facetest.greendaodemo.greendao.gen'//设置DaoMaster、DaoSession、Dao包名
+    targetGenDir 'src/main/java'//设置DaoMaster、DaoSession、Dao目录
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -56,5 +69,5 @@ dependencies {
     compile 'com.lovedise:permissiongen:0.0.6'
     compile 'com.jakewharton.rxbinding:rxbinding:1.0.1'
     compile files('libs/jxl.jar')
-
+    compile 'org.greenrobot:greendao:3.2.0'
 }
