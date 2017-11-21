@@ -4,6 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import xiahohu.facetest.model.WhiteList;
+
 public class SharedPreferencesUtil {
 
 	public static String getStringByKey(String key, Context context){
@@ -28,6 +36,7 @@ public class SharedPreferencesUtil {
 		sharedata.commit();
 		System.out.println("保存数据");
 	}
+
 	public static void save(String key, long value, Context context){
 		Editor sharedata =context. getSharedPreferences("data", 0).edit();
 		sharedata.putLong(key,value);
@@ -89,4 +98,44 @@ public class SharedPreferencesUtil {
 		sharedata.remove(key);
 		sharedata.commit();
 	}
+
+	/**
+	 * 保存List
+	 * @param tag
+	 * @param datalist
+	 */
+	public static <T> void setDataList(Context context, String tag, List<T> datalist) {
+		SharedPreferences sharedPreference = getSharedPreference(context);
+		Editor editor = sharedPreference.edit();
+		if (null == datalist || datalist.size() <= 0)
+			return;
+
+		Gson gson = new Gson();
+		//转换成json数据，再保存
+		String strJson = gson.toJson(datalist);
+		editor.clear();
+		editor.putString(tag, strJson);
+		editor.commit();
+
+	}
+
+	/**
+	 * 获取List
+	 * @param tag
+	 * @return
+	 */
+	public static<T> ArrayList<T> getDataList(Context context,String tag) {
+		SharedPreferences preferences = getSharedPreference(context);
+		ArrayList<T> datalist=new ArrayList<T>();
+		String strJson = preferences.getString(tag, null);
+		if (null == strJson) {
+			return datalist;
+		}
+		Gson gson = new Gson();
+		datalist = gson.fromJson(strJson, new TypeToken<ArrayList<WhiteList>>() {
+		}.getType());
+		return datalist;
+
+	}
+
 }

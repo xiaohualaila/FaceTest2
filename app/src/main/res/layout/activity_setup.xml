@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/switch_off"
     android:layout_height="match_parent">
     <include
         android:id="@+id/title"
@@ -17,80 +19,94 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
            >
+            <xiahohu.facetest.view.CircleImageView
+                android:layout_width="200dp"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/beauty"/>
+
+            <!--工作模式-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bording"
                 android:orientation="vertical"
-                android:layout_margin="5dp">
-
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp">
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="3dp"
+                    android:text="工作模式:"
+                    android:textSize="24sp" />
                 <RelativeLayout
                     android:layout_width="match_parent"
+                    android:background="@drawable/background_login"
+                    android:padding="15dp"
                     android:layout_height="match_parent">
-
-                    <TextView
-                        android:id="@+id/textView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="是否联接服务器:"
-                        android:textColor="@color/blue"
-                        android:textSize="30sp"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"/>
-
                     <RadioGroup
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_toRightOf="@+id/textView">
-
+                        android:orientation="horizontal">
                         <RadioButton
                             android:id="@+id/rb_lian"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:buttonTint="@color/blue"
-                            android:layout_marginLeft="40dp"
-                            android:textSize="30sp"
-                            android:text="联网" />
-
+                            android:layout_marginLeft="10dp"
+                            android:textSize="24sp"
+                            android:textColor="@color/switch_off"
+                            android:button="@null"
+                            android:drawableRight="@drawable/radiobutton_selector"
+                            android:drawablePadding="20dp"
+                            android:text="联机模式" />
                         <RadioButton
                             android:id="@+id/rb_lian_not"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:buttonTint="@color/blue"
-                            android:layout_marginLeft="40dp"
+                            android:layout_marginLeft="160dp"
+                            android:layout_marginRight="10dp"
+                            android:textColor="@color/switch_off"
+                            android:button="@null"
+                            android:drawableRight="@drawable/radiobutton_selector"
+                            android:drawablePadding="20dp"
                             android:checked="true"
-                            android:textSize="30sp"
-                            android:text="不联网" />
+                            android:textSize="24sp"
+                            android:text="脱机模式" />
                     </RadioGroup>
                 </RelativeLayout>
-
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/ll_service"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bording"
-                android:orientation="vertical"
-                android:layout_margin="5dp">
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginRight="25dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="24sp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_centerVertical="true"
+                    android:text="服务器设置:"/>
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:textColor="@color/blue"
-                        android:textSize="30sp"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"
-                        android:text="服务器设置:"/>
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:background="@drawable/background_login">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue"
                         android:layout_toLeftOf="@+id/state"
                         android:layout_marginRight="5dp"
-                        android:textSize="28sp"
+                        android:textSize="24sp"
                         android:text="IP状态："/>
                     <TextView
                         android:id="@+id/state"
@@ -98,92 +114,103 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/colorAccent"
                         android:layout_alignParentRight="true"
-                        android:layout_marginRight="5dp"
-                        android:textSize="28sp"
+                        android:layout_marginRight="20dp"
+                        android:textSize="24sp"
                         android:text="无效"/>
+                    <LinearLayout
+                        android:id="@+id/ip"
+                        android:layout_below="@+id/state"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/switch_off"
+                            android:textSize="24sp"
+                            android:layout_marginLeft="10dp"
+                            android:text="服务器IP:" />
+                        <xiahohu.view.ClearEditTextWhite
+                            android:id="@+id/ip_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingRight="10dp"
+                            android:layout_marginRight="20dp"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="@color/clear_edit_text"
+                            android:background="@drawable/background_corner_right" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/ll_duankou"
+                        android:layout_below="@+id/ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/switch_off"
+                            android:textSize="24sp"
+                            android:layout_marginLeft="10dp"
+                            android:text="服务器端口:" />
+                        <xiahohu.view.ClearEditTextWhite
+                            android:id="@+id/duankou"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:paddingRight="10dp"
+                            android:layout_marginRight="20dp"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="@color/clear_edit_text"
+                            android:background="@drawable/background_corner_right" />
+                    </LinearLayout>
+                    <TextView
+                        android:layout_below="@+id/ll_duankou"
+                        android:id="@+id/check_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/btn_pressed_blue"
+                        android:gravity="center"
+                        android:text="验证IP、端口"
+                        android:textColor="@color/white"
+                        android:textSize="24sp" />
                 </RelativeLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:textColor="@color/white"
-                        android:background="@drawable/background_corner_left"
-                        android:textSize="18sp"
-                        android:text="IP地址" />
-                    <xiahohu.view.ClearEditTextWhite
-                        android:id="@+id/ip_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:paddingRight="10dp"
-                        android:textColor="@color/clear_edit_text"
-                        android:background="@drawable/background_corner_right" />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:textColor="@color/white"
-                        android:background="@drawable/background_corner_left"
-                        android:textSize="18sp"
-                        android:text="端口" />
-                    <xiahohu.view.ClearEditTextWhite
-                        android:id="@+id/duankou"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:paddingRight="10dp"
-                        android:textColor="@color/clear_edit_text"
-                        android:background="@drawable/background_corner_right" />
-                </LinearLayout>
-                <TextView
-                    android:id="@+id/check_ip"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@drawable/btn_pressed_blue"
-                    android:gravity="center"
-                    android:text="验证IP、端口"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+
             </LinearLayout>
-        <LinearLayout
+            <LinearLayout
             android:id="@+id/ll_tuoji"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bording"
             android:orientation="vertical"
-            android:layout_margin="5dp">
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="25dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:text="脱机检测:"
-                android:textColor="@color/blue"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:layout_centerVertical="true"/>
+                android:textSize="24sp" />
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp">
+                android:padding="15dp"
+                android:background="@drawable/background_login">
                 <TextView
                     android:id="@+id/excel_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:textSize="28sp"
+                    android:textSize="24sp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@color/switch_off"
                     android:text="是否存在Excel文件："/>
                 <TextView
                     android:id="@+id/excel_state"
@@ -192,50 +219,49 @@
                     android:layout_alignParentRight="true"
                     android:gravity="center"
                     android:textColor="@color/colorAccent"
-                    android:textSize="28sp"
+                    android:textSize="22sp"
                     android:layout_marginRight="30dp"
                     android:text="未检测"/>
+                <RelativeLayout
+                    android:layout_below="@+id/excel_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+                    <TextView
+                        android:id="@+id/check_excel"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/btn_pressed_blue"
+                        android:gravity="center"
+                        android:text="检   测"
+                        android:textColor="@color/white"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="30dp"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/add_excel"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/btn_pressed_blue"
+                        android:gravity="center"
+                        android:text="加载Excel"
+                        android:layout_toLeftOf="@+id/check_excel"
+                        android:textColor="@color/white"
+                        android:layout_marginRight="30dp"
+                        android:visibility="gone"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+            </RelativeLayout>
 
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp">
-                <TextView
-                    android:id="@+id/check_excel"
-                    android:layout_width="150dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/btn_pressed_blue"
-                    android:gravity="center"
-                    android:text="检   测"
-                    android:textColor="@color/white"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="30dp"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:id="@+id/add_excel"
-                    android:layout_width="150dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/btn_pressed_blue"
-                    android:gravity="center"
-                    android:text="导入Excel"
-                    android:layout_toLeftOf="@+id/check_excel"
-                    android:textColor="@color/white"
-                    android:layout_marginRight="30dp"
-                    android:visibility="gone"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bording"
             android:orientation="vertical"
-            android:layout_margin="5dp">
+            android:layout_margin="25dp">
            <RelativeLayout
                android:layout_width="match_parent"
                android:layout_height="wrap_content">
@@ -243,22 +269,14 @@
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
                    android:text="选择设备："
-                   android:textColor="@color/blue"
-                   android:textSize="30sp"
-                   android:textStyle="bold" />
-               <TextView
-                   android:id="@+id/reset"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_alignParentRight="true"
-                   android:textSize="30sp"
-                   android:layout_marginRight="30dp"
-                   android:text="重置"/>
+                   android:layout_marginLeft="10dp"
+                   android:textSize="24sp" />
            </RelativeLayout>
 
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/background_login"
                     android:orientation="vertical">
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -270,21 +288,23 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="40dp"
-                            android:textSize="28sp"
+                            android:textSize="24sp"
+                            android:textColor="@color/switch_off"
                             android:text="二维码" />
                         <Switch
                             android:id="@+id/switch2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="40dp"
-                            android:textSize="28sp"
+                            android:layout_marginLeft="80dp"
+                            android:textSize="24sp"
+                            android:textColor="@color/switch_off"
                             android:text="芯   片" />
 
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="30dp"
+                        android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"
                         android:orientation="horizontal">
                         <Switch
@@ -292,18 +312,43 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="40dp"
-                            android:textSize="28sp"
+                            android:textSize="24sp"
+                            android:textColor="@color/switch_off"
                             android:text="身份证" />
                         <Switch
                             android:id="@+id/switch4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="40dp"
-                            android:textSize="28sp"
+                            android:layout_marginLeft="80dp"
+                            android:textSize="24sp"
+                            android:textColor="@color/switch_off"
                             android:text="拍   照" />
                     </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/reset"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:textSize="20sp"
+                        android:layout_marginRight="30dp"
+                        android:background="@drawable/btn_pressed_blue"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:layout_marginBottom="10dp"
+                        android:text="重  置"/>
+                </RelativeLayout>
+
                 </LinearLayout>
         </LinearLayout>
+            <TextView
+                android:id="@+id/dd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text= "我辅导辅导费"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

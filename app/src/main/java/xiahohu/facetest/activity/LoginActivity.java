@@ -1,6 +1,7 @@
 package xiahohu.facetest.activity;
 
 import android.content.Intent;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -44,13 +45,21 @@ public class LoginActivity extends BaseAppCompatActivity {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+        //获取屏幕宽度
+        DisplayMetrics dm = new DisplayMetrics();
+
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+        Log.i("SSSS","heigth : " +dm.heightPixels);
+        Log.i("SSSS","width : " + dm.widthPixels);
+
     }
 
     private void initLoginContent(String tag) {
         if (tag != null) {
-            checkbox.setImageResource(R.drawable.login_beixuan);
+            checkbox.setImageResource(R.drawable.icon_rb_selector_checked);
         } else {
-            checkbox.setImageResource(R.drawable.login_weixuan);
+            checkbox.setImageResource(R.drawable.icon_rb_selector_normal);
         }
         String local_name = SharedPreferencesUtil.getStringByKey("username", LoginActivity.this);
         if (local_name != null) {
@@ -89,10 +98,10 @@ public class LoginActivity extends BaseAppCompatActivity {
 //            case R.id.checkbox:
 //                if (v.getTag().toString().equals("true")) {
 //                    v.setTag("false");
-//                    checkbox.setImageResource(R.drawable.login_weixuan);
+//                    checkbox.setImageResource(R.drawable.icon_rb_selector_normal);
 //                } else {
 //                    v.setTag("true");
-//                    checkbox.setImageResource(R.drawable.login_beixuan);
+//                    checkbox.setImageResource(R.drawable.icon_rb_selector_checked);
 //                }
 //                break;
 

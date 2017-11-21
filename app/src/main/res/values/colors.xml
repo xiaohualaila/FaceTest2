@@ -12,4 +12,8 @@
     <color name="clear_edit_text">#00f3fe</color>
     <color name="switch_on">#05a1f5</color>
     <color name="switch_off">#979898</color>
+    <color name="view_line">#bbbebe</color>
+    <color name="background_setup">#80ffffff</color>
+    <color name="gray">#dfedf3</color>
+    <color name="back_bar">#aadbf2</color>
 </resources>

@@ -3,25 +3,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 xmlns:tools="http://schemas.android.com/tools"
-                android:background="@color/blue"
+                android:background="@color/back_bar"
+
     >
 
     <ImageView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:padding="10dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30dp"
         android:src="@drawable/fanhui" />
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         tools:text="通知"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:gravity="center"
+        android:layout_marginTop="30dp"
         android:textColor="@color/white"
         android:textSize="30sp"
         android:textStyle="bold" />
@@ -34,8 +36,8 @@
         android:textColor="@color/white"
         android:textSize="30sp"
         android:visibility="invisible"
-        android:gravity="center"
         android:layout_marginRight="30dp"
+        android:layout_marginTop="30dp"
         android:layout_alignParentRight="true"/>
 
 </RelativeLayout>

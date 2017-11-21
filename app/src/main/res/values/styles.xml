@@ -18,4 +18,10 @@
         <!--使用方法：
         在布局文件中给需要自定义控件中增加app:theme="@style/MySwitch"-->
     </style>
+    <!-- 加載彈窗的动画 -->
+    <style name="loadingdialog_animation">
+        <item name="android:windowEnterAnimation">@anim/dialog_in</item>
+        <item name="android:windowExitAnimation">@anim/dialog_out</item>
+    </style>
+
 </resources>

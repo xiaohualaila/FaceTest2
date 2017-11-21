@@ -6,6 +6,7 @@ package xiahohu.facetest.bean;
 
 public class CountryModel {
     private String num;
+    private String code;
 
     public String getNum() {
         return num;
@@ -15,4 +16,11 @@ public class CountryModel {
         this.num = num;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

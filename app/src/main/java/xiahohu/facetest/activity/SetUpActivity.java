@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,32 +13,24 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import org.json.JSONObject;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
-
 import butterknife.Bind;
 import butterknife.OnClick;
-
-import jxl.Sheet;
-import jxl.Workbook;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
 import xiahohu.facetest.R;
 import xiahohu.facetest.Util.FileUtil;
+import xiahohu.facetest.Util.GetDataUtil;
 import xiahohu.facetest.Util.SharedPreferencesUtil;
 import xiahohu.facetest.Util.UtilToast;
 import xiahohu.facetest.activity.base.BaseAppCompatActivity;
-import xiahohu.facetest.bean.CountryModel;
+import xiahohu.facetest.model.WhiteList;
 import xiahohu.retrofit.Api;
 import xiahohu.view.ClearEditTextWhite;
+import xiahohu.view.LoadingDialog;
 
 
 /**
@@ -77,7 +68,6 @@ public class SetUpActivity extends BaseAppCompatActivity  {
     public static SetUpActivity instance = null;
     private static final String TAG = "xxxxx";
     private String  str_ip;
-
     @Bind(R.id.switch1)
     Switch switch1;
     @Bind(R.id.switch2)
@@ -102,7 +92,6 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         ll_tuoji.setVisibility(View.VISIBLE);
         initSwitch();
         initPath();
-
     }
 
 
@@ -150,7 +139,6 @@ public class SetUpActivity extends BaseAppCompatActivity  {
                     setBoolean(idCard, isChecked,"idCard");
                     break;
                 case R.id.switch4:
-                    photo = isChecked;
                     setBoolean(photo, isChecked,"photo");
                     break;
             }
@@ -159,14 +147,8 @@ public class SetUpActivity extends BaseAppCompatActivity  {
 
     private void setBoolean(boolean flag,boolean isChecked,String saveTag){
         flag = isChecked;
-        SharedPreferencesUtil.save(saveTag,flag,this);
-//        if (isChecked) {
-//            flag = isChecked;
-//            SharedPreferencesUtil.save(saveShared,flag,this);
-//        } else {
-//            flag = isChecked;
-//            SharedPreferencesUtil.save(saveShared,flag,this);
-//        }
+        SharedPreferencesUtil.save(saveTag,isChecked,this);
+
     }
 
 
@@ -175,7 +157,8 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         return R.layout.activity_setup;
     }
 
-    @OnClick({R.id.tv_finish,R.id.btn_back,R.id.rb_lian,R.id.rb_lian_not,R.id.check_ip,R.id.download_video,R.id.local_video,R.id.reset,R.id.check_excel})
+    @OnClick({R.id.tv_finish,R.id.btn_back,R.id.rb_lian,R.id.rb_lian_not,R.id.check_ip,R.id.download_video,
+            R.id.local_video,R.id.reset,R.id.check_excel,R.id.add_excel,R.id.dd})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.check_ip:
@@ -228,28 +211,39 @@ public class SetUpActivity extends BaseAppCompatActivity  {
                 break;
             case R.id.add_excel:
                 if(!TextUtils.isEmpty(path)){
+                    LoadingDialog.showWindow(this);
                     new ExcelDataLoader().execute(path);
+                    add_excel.setEnabled(false);
                 }
                 break;
+            case R.id.dd:
+               boolean flag =  GetDataUtil.getDataBooean(this);
+               if(flag){
+                   Log.i("sss","ssssssssssssssss");
+               }else {
+                   Log.i("sss","xxxxxxxxxxxxxxxxxx");
+               }
 
+                break;
         }
     }
 
     private void getExcel() {
-        path = FileUtil.getPath()+ File.separator +"a.xls";
+        path = FileUtil.getPath()+ File.separator +"door.xls";
         File file = new File(path);
         if(!file.exists()){
             UtilToast.showToast(this,"文件不存在,请将文件放入设备存储face2文件下！");
             excel_state.setText("文件不存在！");
             return;
         }else {
+            excel_state.setText("door.xls文件存在！");
             add_excel.setVisibility(View.VISIBLE);
         }
 
     }
 
     //在异步方法中 调用
-    private class ExcelDataLoader extends AsyncTask<String, Void, ArrayList<CountryModel>> {
+    private class ExcelDataLoader extends AsyncTask<String, Void, ArrayList<WhiteList>> {
 
         @Override
         protected void onPreExecute() {
@@ -257,55 +251,31 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         }
 
         @Override
-        protected ArrayList<CountryModel> doInBackground(String... params) {
-            return getXlsData(params[0], 0);
+        protected ArrayList<WhiteList> doInBackground(String... params) {
+            return GetDataUtil.getXlsData(params[0], 0);
         }
 
         @Override
-        protected void onPostExecute(ArrayList<CountryModel> countryModels) {
+        protected void onPostExecute(ArrayList<WhiteList> countryModels) {
 
             if(countryModels != null && countryModels.size()>0){
                 //存在数据
+                excel_state.setText("文件加载成功！");
+                SharedPreferencesUtil.setDataList(SetUpActivity.this,"countryModels",countryModels);
                 Log.i(TAG,"count++"+ countryModels.size());
-                excel_state.setText("存在");
             }else {
                 //加载失败
-
+                excel_state.setText("文件加载失败！");
+                SharedPreferencesUtil.removeKey(SetUpActivity.this,"countryModels");
             }
+            if(LoadingDialog.isShowing()){
+                LoadingDialog.dismiss();
+            }
+            add_excel.setEnabled(true);
         }
     }
 
-    /**
-     * 获取 excel 表格中的数据,不能在主线程中调用
-     *
-     * @param xlsName excel 表格的名称
-     * @param index   第几张表格中的数据
-     */
-    private ArrayList<CountryModel> getXlsData(String xlsName, int index) {
-        ArrayList<CountryModel> countryList = new ArrayList<CountryModel>();
-        try {
-            File file =new File(xlsName);
-            InputStream in=new FileInputStream(file);
-            Workbook workbook = Workbook.getWorkbook(in);
-            Sheet sheet = workbook.getSheet(index);
-            int sheetNum = workbook.getNumberOfSheets();
-            int sheetRows = sheet.getRows();
-            int sheetColumns = sheet.getColumns();
-//            Log.d(TAG, "the num of sheets is " + sheetNum);
-//            Log.d(TAG, "the name of sheet is  " + sheet.getName());
-//            Log.d(TAG, "total rows is 行=" + sheetRows);
-//            Log.d(TAG, "total cols is 列=" + sheetColumns);
-            for (int i = 0; i < sheetRows; i++) {
-                CountryModel countryModel = new CountryModel();
-                countryModel.setNum(sheet.getCell(0, i).getContents());
-                countryList.add(countryModel);
-            }
-            workbook.close();
-        } catch (Exception e) {
-            Log.e(TAG, "read error=" + e, e);
-        }
-        return countryList;
-    }
+
 
    //检测IP
     private void checkIp() {
@@ -372,4 +342,6 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         alertDialog = builder.create();
         alertDialog.show();
     }
+
+
 }
