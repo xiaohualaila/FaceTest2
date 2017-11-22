@@ -228,6 +228,18 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp">
                     <TextView
+                        android:id="@+id/down_excel"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/btn_pressed_blue"
+                        android:gravity="center"
+                        android:text="下   载"
+                        android:textColor="@color/white"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="30dp"
+                        android:textStyle="bold"
+                        android:textSize="20sp" />
+                    <TextView
                         android:id="@+id/check_excel"
                         android:layout_width="150dp"
                         android:layout_height="40dp"
@@ -235,7 +247,7 @@
                         android:gravity="center"
                         android:text="检   测"
                         android:textColor="@color/white"
-                        android:layout_alignParentRight="true"
+                        android:layout_toLeftOf="@+id/down_excel"
                         android:layout_marginRight="30dp"
                         android:textSize="20sp"
                         android:textStyle="bold" />

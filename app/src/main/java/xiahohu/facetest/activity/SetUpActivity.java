@@ -10,7 +10,9 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import org.json.JSONObject;
@@ -18,10 +20,12 @@ import java.io.File;
 import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.OnClick;
+import kr.co.namee.permissiongen.internal.Utils;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import xiahohu.facetest.R;
+import xiahohu.facetest.Util.DownloadUtil;
 import xiahohu.facetest.Util.FileUtil;
 import xiahohu.facetest.Util.GetDataUtil;
 import xiahohu.facetest.Util.SharedPreferencesUtil;
@@ -82,6 +86,7 @@ public class SetUpActivity extends BaseAppCompatActivity  {
     private boolean idCard = false;
     private boolean photo = false;
     private String path = "";
+    private android.app.AlertDialog dialog;
     @Override
     protected void init() {
         tv_title.setText("设置");
@@ -93,8 +98,6 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         initSwitch();
         initPath();
     }
-
-
 
     private void initPath() {
         String mkdirPath = FileUtil.getPath();
@@ -130,27 +133,28 @@ public class SetUpActivity extends BaseAppCompatActivity  {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             switch (buttonView.getId()){
                 case R.id.switch1:
-                    setBoolean(code, isChecked,"code");
+                    code = isChecked;
+                    setBoolean(isChecked,"code");
                     break;
                 case R.id.switch2:
-                    setBoolean(xin, isChecked,"xin");
+                    xin = isChecked;
+                    setBoolean(isChecked,"xin");
                     break;
                 case R.id.switch3:
-                    setBoolean(idCard, isChecked,"idCard");
+                    idCard = isChecked;
+                    setBoolean(isChecked,"idCard");
                     break;
                 case R.id.switch4:
-                    setBoolean(photo, isChecked,"photo");
+                    photo= isChecked;
+                    setBoolean(isChecked,"photo");
                     break;
             }
         }
     };
 
-    private void setBoolean(boolean flag,boolean isChecked,String saveTag){
-        flag = isChecked;
+    private void setBoolean(boolean isChecked,String saveTag){
         SharedPreferencesUtil.save(saveTag,isChecked,this);
-
     }
-
 
     @Override
     protected int getLayoutId() {
@@ -158,7 +162,7 @@ public class SetUpActivity extends BaseAppCompatActivity  {
     }
 
     @OnClick({R.id.tv_finish,R.id.btn_back,R.id.rb_lian,R.id.rb_lian_not,R.id.check_ip,R.id.download_video,
-            R.id.local_video,R.id.reset,R.id.check_excel,R.id.add_excel,R.id.dd})
+            R.id.local_video,R.id.reset,R.id.check_excel,R.id.add_excel,R.id.dd,R.id.down_excel})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.check_ip:
@@ -225,7 +229,41 @@ public class SetUpActivity extends BaseAppCompatActivity  {
                }
 
                 break;
+            case R.id.down_excel:
+                    DownloadUtil.get().download("  ", "door", new DownloadUtil.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess() {
+                            if(dialog.isShowing()){
+                                dialog.dismiss();
+                            }
+                            UtilToast.showToast(SetUpActivity.this, "下载完成");
+                        }
+                        @Override
+                        public void onDownloading(int progress) {
+                            showDownProgressDialog(progress);
+                        }
+                        @Override
+                        public void onDownloadFailed() {
+                            if(dialog.isShowing()){
+                                dialog.dismiss();
+                            }
+                            UtilToast.showToast(SetUpActivity.this, "下载失败");
+                        }
+                    });
+                break;
         }
+    }
+
+    private void showDownProgressDialog(int progress) {
+        LayoutInflater inflaterDl = LayoutInflater.from(this);
+        RelativeLayout layout = (RelativeLayout)inflaterDl.inflate(R.layout.activity_downloading, null );
+        android.app.AlertDialog.Builder dialogBuilder = new android.app.AlertDialog.Builder(this);
+        dialogBuilder.setCancelable(false);
+        dialog = dialogBuilder.create();
+        dialog.show();
+        dialog.getWindow().setContentView(layout);
+        final ProgressBar progressBar = (ProgressBar) layout.findViewById(R.id.load);
+        progressBar.setProgress(progress);
     }
 
     private void getExcel() {

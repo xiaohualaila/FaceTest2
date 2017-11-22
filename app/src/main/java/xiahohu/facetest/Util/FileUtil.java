@@ -17,7 +17,7 @@ public class FileUtil {
      * 获取图片保存路径
      */
     public static String getPath(){
-        String path = FileUtil.getSDPath() + File.separator + "face2";
+        String path = FileUtil.getSDPath() + File.separator + "door";
         File pathFile = new File(path);
         if(!pathFile.exists() || !pathFile.isDirectory()){
             pathFile.mkdir();

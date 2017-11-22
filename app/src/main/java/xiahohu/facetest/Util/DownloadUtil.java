@@ -57,7 +57,11 @@ public class DownloadUtil {
                 try {
                     is = response.body().byteStream();
                     long total = response.body().contentLength();
-                    File file = new File(savePath, getNameFromUrl(url));
+                 //   File file = new File(savePath, getNameFromUrl(url));
+                    File file = new File(savePath, "door.xls");
+                    if(!file.exists()){
+                        file.createNewFile();
+                    }
                     fos = new FileOutputStream(file);
                     long sum = 0;
                     while ((len = is.read(buf)) != -1) {
@@ -132,20 +136,7 @@ public class DownloadUtil {
         void onDownloadFailed();
     }
 
-//    DownloadUtil.get().download(url, "download", new DownloadUtil.OnDownloadListener() {
-//        @Override
-//        public void onDownloadSuccess() {
-//            Utils.showToast(MainActivity.this, "下载完成");
-//        }
-//        @Override
-//        public void onDownloading(int progress) {
-//            progressBar.setProgress(progress);
-//        }
-//        @Override
-//        public void onDownloadFailed() {
-//            Utils.showToast(MainActivity.this, "下载失败");
-//        }
-//    });
+
 
 
 }
