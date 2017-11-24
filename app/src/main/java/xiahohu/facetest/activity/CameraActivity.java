@@ -8,6 +8,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -16,7 +17,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-
 import org.json.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -62,15 +61,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private int width = 640;
     private int height = 480;
 
+
     @OnClick({R.id.take_photo})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-                if(safephoto){
-                    safephoto = false;
-                    // text_card.setText("拍摄人脸照片！");
-                    camera.takePicture(null, null, jpeg);
-                }
+//                if(safephoto){
+//                    safephoto = false;
+//                    // text_card.setText("拍摄人脸照片！");
+//                    camera.takePicture(null, null, jpeg);
+//                }
+                takePhoto(0);
                 break;
         }
     }
@@ -84,23 +85,35 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         holder = camera_sf.getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        startService(new Intent(this, MyService.class));
         RxBus.getDefault().toObserverable(MyMessage.class).subscribe(myMessage -> {
-            starPhoto(myMessage.getNum());
+            takePhoto(myMessage.getNum());
         });
     }
 
-    private void starPhoto(int num){
+//    Handler handler=new Handler();
+//    Runnable runnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//         finish();
+//        }
+//    };
+
+
+    private void takePhoto(int num){
         if ( num == 0) {
             if (safephoto) {
+              //  handler.removeCallbacks(runnable);
                 safephoto = false;
-               //text_card.setText("拍摄人脸照片！");
                 deleteFile();
                 camera.takePicture(null, null, jpeg);
-                Log.i("sss", "拍摄人脸照片");
+                Log.i("xxx", "拍摄人脸照片");
             }
         }
-
     }
 
     private void deleteFile(){
@@ -161,9 +174,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private void uploadFinish() {
-        safephoto = true;
-        camera.startPreview();
-        Log.i("sss","onCompleted检测完成！");
+//        safephoto = true;
+//        camera.startPreview();
+        finish();
+        //handler.post(runnable);
     }
 
 
@@ -224,7 +238,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         super.onDestroy();
         closeCamera();
         FileUtil.deleteDir(FileUtil.getPath());
-        stopService( new Intent(this, MyService.class));
     }
 
     @Override

@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="blue">#00aaff</color>
+    <color name="blue">#0697d9</color>
     <color name="blue1">#00bfff</color>
     <color name="white">#fff</color>
     <color name="yellow">#c29905</color>
@@ -15,5 +15,5 @@
     <color name="view_line">#bbbebe</color>
     <color name="background_setup">#80ffffff</color>
     <color name="gray">#dfedf3</color>
-    <color name="back_bar">#aadbf2</color>
+    <color name="back_bar">#88aadbf2</color>
 </resources>

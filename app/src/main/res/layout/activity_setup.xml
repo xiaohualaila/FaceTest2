@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/switch_off"
+    android:background="@drawable/defoult_bg"
     android:layout_height="match_parent">
     <include
         android:id="@+id/title"
@@ -19,13 +19,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
            >
-            <xiahohu.facetest.view.CircleImageView
-                android:layout_width="200dp"
-                android:layout_height="150dp"
-                android:scaleType="centerCrop"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/beauty"/>
-
             <!--工作模式-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,19 +119,19 @@
                         android:orientation="horizontal">
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:textColor="@color/switch_off"
                             android:textSize="24sp"
                             android:layout_marginLeft="10dp"
                             android:text="服务器IP:" />
-                        <xiahohu.view.ClearEditTextWhite
+                        <xiahohu.view.ClearEditText
                             android:id="@+id/ip_address"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:paddingRight="10dp"
                             android:layout_marginRight="20dp"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginLeft="35dp"
                             android:textColor="@color/clear_edit_text"
                             android:background="@drawable/background_corner_right" />
                     </LinearLayout>
@@ -146,9 +139,8 @@
                         android:id="@+id/ll_duankou"
                         android:layout_below="@+id/ip"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:layout_marginTop="10dp"
-
                         android:orientation="horizontal">
                         <TextView
                             android:layout_width="wrap_content"
@@ -157,7 +149,7 @@
                             android:textSize="24sp"
                             android:layout_marginLeft="10dp"
                             android:text="服务器端口:" />
-                        <xiahohu.view.ClearEditTextWhite
+                        <xiahohu.view.ClearEditText
                             android:id="@+id/duankou"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -172,10 +164,10 @@
                         android:layout_below="@+id/ll_duankou"
                         android:id="@+id/check_ip"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
                         android:background="@drawable/btn_pressed_blue"
                         android:gravity="center"
                         android:text="验证IP、端口"
@@ -222,8 +214,19 @@
                     android:textSize="22sp"
                     android:layout_marginRight="30dp"
                     android:text="未检测"/>
-                <RelativeLayout
+                <com.daimajia.numberprogressbar.NumberProgressBar
+                    android:id="@+id/number_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     android:layout_below="@+id/excel_title"
+                    android:visibility="gone"
+                    />
+                <RelativeLayout
+                    android:layout_below="@+id/number_progress_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp">

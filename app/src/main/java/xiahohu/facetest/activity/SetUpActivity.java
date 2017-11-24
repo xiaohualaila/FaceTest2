@@ -15,12 +15,14 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.daimajia.numberprogressbar.NumberProgressBar;
+
 import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.OnClick;
-import kr.co.namee.permissiongen.internal.Utils;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -33,9 +35,8 @@ import xiahohu.facetest.Util.UtilToast;
 import xiahohu.facetest.activity.base.BaseAppCompatActivity;
 import xiahohu.facetest.model.WhiteList;
 import xiahohu.retrofit.Api;
-import xiahohu.view.ClearEditTextWhite;
+import xiahohu.view.ClearEditText;
 import xiahohu.view.LoadingDialog;
-
 
 /**
  * Created by ThinkPad on 2017/10/17.
@@ -51,9 +52,9 @@ public class SetUpActivity extends BaseAppCompatActivity  {
     @Bind(R.id.state)
     TextView state;
     @Bind(R.id.ip_address)
-    ClearEditTextWhite ip_address;
+    ClearEditText ip_address;
     @Bind(R.id.duankou)
-    ClearEditTextWhite ct_duankou;
+    ClearEditText ct_duankou;
     @Bind(R.id.rb_lian)
     RadioButton rb_lian;
     @Bind(R.id.rb_lian_not)
@@ -66,6 +67,8 @@ public class SetUpActivity extends BaseAppCompatActivity  {
     TextView excel_state;
     @Bind(R.id.add_excel)
     TextView add_excel;
+    @Bind(R.id.number_progress_bar)
+    NumberProgressBar number_progress_bar;
     private String ipAddress;
     private String duankou;
     private AlertDialog alertDialog;
@@ -184,11 +187,12 @@ public class SetUpActivity extends BaseAppCompatActivity  {
                 ll_tuoji.setVisibility(View.VISIBLE);
                 break;
             case R.id.tv_finish:
-                if(photo){
-                    startActivity(new Intent(this, CameraActivity.class));
-                }else {
-                   startActivity(new Intent(this, MainActivity.class));
-                }
+//                if(photo){
+//                    startActivity(new Intent(this, CameraActivity.class));
+//                }else {
+//                   startActivity(new Intent(this, MainActivity.class));
+//                }
+                startActivity(new Intent(this, MainActivity.class));
                 break;
             case R.id.download_video:
                // startActivity(new Intent(this, VideoActivity.class));
@@ -236,17 +240,21 @@ public class SetUpActivity extends BaseAppCompatActivity  {
                             if(dialog.isShowing()){
                                 dialog.dismiss();
                             }
+                            number_progress_bar.setVisibility(View.GONE);
                             UtilToast.showToast(SetUpActivity.this, "下载完成");
                         }
                         @Override
                         public void onDownloading(int progress) {
-                            showDownProgressDialog(progress);
+                         //   showDownProgressDialog(progress);
+                            number_progress_bar.setVisibility(View.VISIBLE);
+                            number_progress_bar.setProgress(progress);
                         }
                         @Override
                         public void onDownloadFailed() {
                             if(dialog.isShowing()){
                                 dialog.dismiss();
                             }
+                            number_progress_bar.setVisibility(View.GONE);
                             UtilToast.showToast(SetUpActivity.this, "下载失败");
                         }
                     });

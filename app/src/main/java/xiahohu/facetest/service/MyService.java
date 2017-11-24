@@ -8,6 +8,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
+
+import xiahohu.facetest.Util.CommonUtil;
+import xiahohu.facetest.activity.CameraActivity;
+import xiahohu.facetest.activity.MainActivity;
 import xiahohu.facetest.bean.MyMessage;
 import xiahohu.facetest.rx.RxBus;
 
@@ -35,14 +39,27 @@ public class MyService extends Service {
         @Override
         public void run() {
             int val = rkGpioControlNative.ReadGpio(4);
+            Log.i("xxx",">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             if(val == 0){
-                Log.i("sss","+++++++val++++++++++++++");
-                RxBus.getDefault().post(new MyMessage(val));
-                handler.postDelayed(this, TIME);
+                boolean flag = CommonUtil.isForeground(MyService.this,CameraActivity.class.getName());
 
+                if(!flag){
+                    Intent intent = new Intent();
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setClass(getApplicationContext(),CameraActivity.class);
+                    startActivity(intent);
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            RxBus.getDefault().post(new MyMessage(val));//发送信息
+                        }
+                    },2000);
+                }else {
+                    RxBus.getDefault().post(new MyMessage(val));
+                }
+                handler.postDelayed(this, TIME);
             }else {
                 handler.postDelayed(this, 500);
-                Log.i("sss","+++++++++++++++++++++");
             }
         }
     };
