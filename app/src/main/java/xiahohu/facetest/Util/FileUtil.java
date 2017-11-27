@@ -89,6 +89,7 @@ public class FileUtil {
         }
     }
 
+
     public static long getTime() {
         return Calendar.getInstance().getTimeInMillis();
     }

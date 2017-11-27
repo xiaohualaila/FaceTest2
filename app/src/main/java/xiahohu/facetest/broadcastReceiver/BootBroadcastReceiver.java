@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import xiahohu.facetest.activity.CameraActivity;
 import xiahohu.facetest.activity.LoginActivity;
+import xiahohu.facetest.activity.MainActivity;
 
 /**
  * Created by admin on 2017/11/2.

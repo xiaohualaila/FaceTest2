@@ -87,13 +87,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-                if(oo){
-                    rkGpioControlNative.ControlGpio(1, 0);//开门
-                    oo = false;
-                }else {
-                    rkGpioControlNative.ControlGpio(1, 1);//关门
-                    oo = true;
-                }
+//                if(oo){
+//                    rkGpioControlNative.ControlGpio(1, 0);//开门
+//                    oo = false;
+//                }else {
+//                    rkGpioControlNative.ControlGpio(1, 1);//关门
+//                    oo = true;
+//                }
+                takePhoto();
                 break;
         }
     }
@@ -124,22 +125,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
            if(!isOpenDoor){
                 if (safephoto) {
                     safephoto = false;
-                    deleteFile();
+                    FileUtil.deleteFile(filePath);
                     camera.takePicture(null, null, jpeg);
                     text_card.setText("拍摄人脸照片");
                 }
            }
-    }
-
-    private void deleteFile(){
-        if(!TextUtils.isEmpty(filePath)){
-            File file = new File(filePath);
-            if(file!=null){
-                if(file.exists()){
-                    file.delete();
-                }
-            }
-        }
     }
 
     private Camera.PictureCallback jpeg = new Camera.PictureCallback() {
@@ -226,31 +216,30 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                                     String result = jsonObject.optString("Result");
                                     if (result.equals("1")||result.equals("6")) {
                                         if(result.equals("1")){
-                                            text_card.setText("正常票卡，可以入场!");
+                                            text_card.setText(R.string.open_door_1);
                                         }else {
-                                            text_card.setText("初次进入，可以入场!");
+                                            text_card.setText(R.string.open_door_6);
                                         }
-                                        // TODO: 2017/11/24 开门
                                         isOpenDoor = true;
                                         rkGpioControlNative.ControlGpio(1, 0);//开门
                                         flag_tag.setImageResource(R.drawable.flag_green);
                                     } else if (result.equals("2")) {
-                                        text_card.setText("正常票卡，已经入场，不可重复入场!");
+                                        text_card.setText(R.string.open_door_2);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     }else if (result.equals("3")){
-                                        text_card.setText("正常票卡，入场口错误，不可入场!");
+                                        text_card.setText(R.string.open_door_3);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     }else if (result.equals("4")){
-                                        text_card.setText("正常票卡，入场频繁，稍后入场");
+                                        text_card.setText(R.string.open_door_4);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     }else if(result.equals("5")){
-                                        text_card.setText("人脸识别失败，不允许入场");
+                                        text_card.setText(R.string.open_door_5);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     } else if(result.equals("99")){
-                                        text_card.setText("上传失败，请重试！");
+                                        text_card.setText(R.string.open_door_99);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     } else{
-                                        text_card.setText("无效票卡，不允许入场");
+                                        text_card.setText(R.string.open_door_other);
                                         flag_tag.setImageResource(R.drawable.flag_red);
                                     }
                                 }
@@ -274,16 +263,12 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            // text_card.setText("");
             if(isOpenDoor){
                 rkGpioControlNative.ControlGpio(1, 1);//关门
                 isOpenDoor = false;
-                // flag_tag.setImageResource(R.drawable.flag_gray);
             }
         }
     };
-
-
 
     public static BitmapFactory.Options setOptions(BitmapFactory.Options opts) {
         opts.inJustDecodeBounds = false;
