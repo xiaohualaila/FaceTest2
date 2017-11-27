@@ -1,9 +1,7 @@
 package xiahohu.retrofit.api;
 
 import org.json.JSONObject;
-
 import java.util.List;
-
 import okhttp3.MultipartBody;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -16,10 +14,18 @@ import rx.Observable;
  */
 public interface BaseApi {
 
-
+    //上传照片
     @POST("face.php")
     @Multipart
     Observable<JSONObject> uploadPhoto(
+            @Part List<MultipartBody.Part> file
+    );
+
+    @POST("api.php")
+    @Multipart
+    Observable<JSONObject> uploadPhotoBase(
+            @Query("deviceid") String deviceid,
+            @Query("ticketid") String ticketid,
             @Part List<MultipartBody.Part> file
     );
 

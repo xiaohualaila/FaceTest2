@@ -5,31 +5,30 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import com.cmm.rkadcreader.adcNative;
-import com.cmm.rkgpiocontrol.rkGpioControlNative;
-
-import xiahohu.facetest.Util.CommonUtil;
-import xiahohu.facetest.activity.CameraActivity;
-import xiahohu.facetest.activity.MainActivity;
+import com.yuwei.utils.ICCRF;
+import com.yuwei.utils.Ultralight;
+import xiahohu.facetest.Util.MyUtil;
 import xiahohu.facetest.bean.MyMessage;
 import xiahohu.facetest.rx.RxBus;
 
 /**
- * Created by Administrator on 2017/11/10.
+ * 读卡
  */
 
 public class MyService extends Service {
 
-    private final int TIME = 3000;
+    private final int TIME = 2000;
+    byte[] bytes1 = new byte[8];
+    byte[] len = new byte[1];
+    private int id;
     @Override
     public void onCreate() {
         super.onCreate();
-        initYingjian();
+        initReadCard();
     }
 
-    private void initYingjian() {
-        rkGpioControlNative.init();
+    private void initReadCard() {
+        id = ICCRF.rf_init(0,9600);
         handler.postDelayed(runnable, TIME);
     }
 
@@ -38,39 +37,28 @@ public class MyService extends Service {
     Runnable runnable=new Runnable() {
         @Override
         public void run() {
-            int val = rkGpioControlNative.ReadGpio(4);
-            Log.i("xxx",">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            if(val == 0){
-                boolean flag = CommonUtil.isForeground(MyService.this,CameraActivity.class.getName());
-
-                if(!flag){
-                    Intent intent = new Intent();
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.setClass(getApplicationContext(),CameraActivity.class);
-                    startActivity(intent);
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            RxBus.getDefault().post(new MyMessage(val));//发送信息
-                        }
-                    },2000);
-                }else {
-                    RxBus.getDefault().post(new MyMessage(val));
-                }
-                handler.postDelayed(this, TIME);
-            }else {
+            int result = ICCRF.rf_ISO14443A_findcard(id,(byte)0x26,len,bytes1);
+         //   Log.i("ssss",result+"   >>>>>>>>>>>>>>>>>>>>>>");
+            if(result != 0) {//0表示读到
                 handler.postDelayed(this, 500);
+            }else {
+                ICCRF.rf_beep(id,10);//蜂鸣器
+                String str = MyUtil.toHexString1(bytes1);
+                RxBus.getDefault().post(new MyMessage(str));
+                handler.postDelayed(this, TIME);
             }
         }
     };
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
-        adcNative.close(0);
-        adcNative.close(2);
-        rkGpioControlNative.close();
+
+        ICCRF.rf_rfinf_reset(Ultralight.id, (byte) 0);
+        Ultralight.offLog();
+        Ultralight.exit();
     }
 
     @Nullable

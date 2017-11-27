@@ -21,7 +21,7 @@ public class MainActivity extends BaseAppCompatActivity {
         image.setBackgroundResource(R.drawable.animation);
         frameAnimation = (AnimationDrawable) image.getBackground();
         frameAnimation.start();
-        startService(new Intent(this, MyService.class));
+        //startService(new Intent(this, MyService.class));
     }
 
     @Override
@@ -33,7 +33,7 @@ public class MainActivity extends BaseAppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService( new Intent(this, MyService.class));
+     //   stopService( new Intent(this, MyService.class));
     }
     //数据库更新
 //    private void updateItem(Long id) {

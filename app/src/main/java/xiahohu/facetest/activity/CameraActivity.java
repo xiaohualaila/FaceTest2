@@ -16,7 +16,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
+import com.cmm.rkadcreader.adcNative;
+import com.cmm.rkgpiocontrol.rkGpioControlNative;
 import org.json.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -33,6 +37,7 @@ import okhttp3.RequestBody;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import xiahohu.facetest.Util.MyUtil;
 import xiahohu.facetest.Util.UtilToast;
 import xiahohu.facetest.service.MyService;
 import xiahohu.facetest.R;
@@ -53,6 +58,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     SurfaceView camera_sf;
     @Bind(R.id.text_card)
     TextView text_card;
+    @Bind(R.id.img1)
+    ImageView img1;
+    @Bind(R.id.img_server)
+    ImageView img_server;
+    @Bind(R.id.card_no)
+    TextView card_no;
+    @Bind(R.id.flag_tag)
+    ImageView flag_tag;
     private Camera camera;
     private String filePath;
     private SurfaceHolder holder;
@@ -60,21 +73,33 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private boolean safephoto  =true;
     private int width = 640;
     private int height = 480;
+    private String device_id;
+    private boolean isOpenDoor = false;
+    private String str;
+    private boolean oo =true;
 
 
+    /**
+     * 测试用按钮
+     * @param view
+     */
     @OnClick({R.id.take_photo})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.take_photo:
-//                if(safephoto){
-//                    safephoto = false;
-//                    // text_card.setText("拍摄人脸照片！");
-//                    camera.takePicture(null, null, jpeg);
-//                }
-                takePhoto(0);
+                if(oo){
+                    rkGpioControlNative.ControlGpio(1, 0);//开门
+                    oo = false;
+                }else {
+                    rkGpioControlNative.ControlGpio(1, 1);//关门
+                    oo = true;
+                }
                 break;
         }
     }
+
+    private Handler handler = new Handler();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,35 +110,25 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         holder = camera_sf.getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        startService(new Intent(this, MyService.class));
         RxBus.getDefault().toObserverable(MyMessage.class).subscribe(myMessage -> {
-            takePhoto(myMessage.getNum());
+            str = myMessage.getNum();
+            card_no.setText(str);
+            takePhoto();
         });
+        device_id = MyUtil.getDeviceID(this);//获取设备号
+        rkGpioControlNative.init();
     }
 
-//    Handler handler=new Handler();
-//    Runnable runnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            try {
-//                Thread.sleep(10000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//         finish();
-//        }
-//    };
-
-
-    private void takePhoto(int num){
-        if ( num == 0) {
-            if (safephoto) {
-              //  handler.removeCallbacks(runnable);
-                safephoto = false;
-                deleteFile();
-                camera.takePicture(null, null, jpeg);
-                Log.i("xxx", "拍摄人脸照片");
-            }
-        }
+    private void takePhoto(){
+           if(!isOpenDoor){
+                if (safephoto) {
+                    safephoto = false;
+                    deleteFile();
+                    camera.takePicture(null, null, jpeg);
+                    text_card.setText("拍摄人脸照片");
+                }
+           }
     }
 
     private void deleteFile(){
@@ -127,75 +142,25 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-    private void uploadPhoto() {
-        File  file = new File(filePath);
-        if(!file.exists()){
-            uploadFinish();
-            return;
-        }
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
-        Api.getBaseApiWithOutFormat(ConnectUrl.URL)
-                .uploadPhoto(builder.build().parts())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        UtilToast.showToast(CameraActivity.this,"人脸检测失败！");
-                        uploadFinish();
-                    }
-
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
-                        Log.i("sss",jsonObject.toString());
-                        if(jsonObject != null){
-                            try {
-                                JSONObject result = jsonObject.optJSONObject("result");
-                                boolean isSuccess=  result.optBoolean("success");
-                                if(isSuccess){
-                                    UtilToast.showToast(CameraActivity.this,"人脸检测成功！");
-                                }else {
-                                    UtilToast.showToast(CameraActivity.this,"人脸检测失败！");
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }finally {
-                                uploadFinish();
-                            }
-                        }
-                    }
-                });
-    }
-
-    private void uploadFinish() {
-//        safephoto = true;
-//        camera.startPreview();
-        finish();
-        //handler.post(runnable);
-    }
-
-
     private Camera.PictureCallback jpeg = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             stopPreview();
             filePath = FileUtil.getPath() + File.separator + FileUtil.getTime() + ".jpeg";
+
             Matrix matrix = new Matrix();
             matrix.reset();
-            matrix.postRotate(270);
+            matrix.postRotate(180);
             BitmapFactory.Options factory = new BitmapFactory.Options();
             factory = setOptions(factory);
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length,factory);
-            Bitmap bm1 = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(),
-                    bm.getHeight(), matrix, true);
+            Bitmap bm1 = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
             BufferedOutputStream bos = null;
             try {
+                File file = new File(filePath);
+                if(!file.exists()){
+                    file.createNewFile();
+                }
                 bos = new BufferedOutputStream(new FileOutputStream(new File(filePath)));
                 bm1.compress(Bitmap.CompressFormat.JPEG,30, bos);
                 bos.flush();
@@ -213,10 +178,112 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 bm.recycle();
                 bm1.recycle();
+                camera.startPreview();//开始预览
                 uploadPhoto();
             }
         }
     };
+
+    /**
+     * 上传信息
+     */
+    private void uploadPhoto() {
+        File  file = new File(filePath);
+        if(!file.exists()){
+            uploadFinish();
+            return;
+        }
+        Glide.with(CameraActivity.this).load(filePath).error(R.drawable.img_bg).into(img1);
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
+        Api.getBaseApiWithOutFormat(ConnectUrl.URL)
+                .uploadPhotoBase("1",str,builder.build().parts())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<JSONObject>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("xxx",e.toString());
+                        text_card.setText("数据请求失败！");
+                        flag_tag.setImageResource(R.drawable.flag_red);
+                        uploadFinish();
+                    }
+
+                    @Override
+                    public void onNext(JSONObject jsonObject) {
+                        Log.i("xxx",jsonObject.toString());
+                            try {
+                                if(jsonObject != null) {
+                                    String Face_path = jsonObject.optString("Face_path");
+                                    if(!TextUtils.isEmpty(Face_path)){
+                                        Glide.with(CameraActivity.this).load(Face_path).error(R.drawable.img_bg).into(img_server);
+                                    }
+                                    String result = jsonObject.optString("Result");
+                                    if (result.equals("1")||result.equals("6")) {
+                                        if(result.equals("1")){
+                                            text_card.setText("正常票卡，可以入场!");
+                                        }else {
+                                            text_card.setText("初次进入，可以入场!");
+                                        }
+                                        // TODO: 2017/11/24 开门
+                                        isOpenDoor = true;
+                                        rkGpioControlNative.ControlGpio(1, 0);//开门
+                                        flag_tag.setImageResource(R.drawable.flag_green);
+                                    } else if (result.equals("2")) {
+                                        text_card.setText("正常票卡，已经入场，不可重复入场!");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    }else if (result.equals("3")){
+                                        text_card.setText("正常票卡，入场口错误，不可入场!");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    }else if (result.equals("4")){
+                                        text_card.setText("正常票卡，入场频繁，稍后入场");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    }else if(result.equals("5")){
+                                        text_card.setText("人脸识别失败，不允许入场");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    } else if(result.equals("99")){
+                                        text_card.setText("上传失败，请重试！");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    } else{
+                                        text_card.setText("无效票卡，不允许入场");
+                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }finally {
+                                uploadFinish();
+                            }
+                    }
+                });
+    }
+
+    /**
+     * 0.5秒关门
+     */
+    private void uploadFinish() {
+        safephoto = true;
+        handler.postDelayed(runnable,500);
+    }
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            // text_card.setText("");
+            if(isOpenDoor){
+                rkGpioControlNative.ControlGpio(1, 1);//关门
+                isOpenDoor = false;
+                // flag_tag.setImageResource(R.drawable.flag_gray);
+            }
+        }
+    };
+
+
 
     public static BitmapFactory.Options setOptions(BitmapFactory.Options opts) {
         opts.inJustDecodeBounds = false;
@@ -238,6 +305,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         super.onDestroy();
         closeCamera();
         FileUtil.deleteDir(FileUtil.getPath());
+        stopService( new Intent(this, MyService.class));
+        adcNative.close(0);
+        adcNative.close(2);
+        rkGpioControlNative.close();
     }
 
     @Override
@@ -290,11 +361,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-    public void setCameraDisplayOrientation(int cameraId, android.hardware.Camera camera) {
-        android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(cameraId, info);
+    public void setCameraDisplayOrientation(int cameraId, Camera camera) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
         int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
-        rotation = 1;
+         rotation = 2;
         int degrees = 0;
         switch (rotation) {
             case Surface.ROTATION_0:
@@ -332,6 +403,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 absHeight = size.height;
             }
         }
+        para.setPictureSize(absWidth,absHeight);
     }
 
     private void closeCamera() {
