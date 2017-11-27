@@ -5,9 +5,14 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.yuwei.utils.ICCRF;
 import com.yuwei.utils.Ultralight;
+
+import xiahohu.facetest.Util.CommonUtil;
 import xiahohu.facetest.Util.MyUtil;
+import xiahohu.facetest.activity.ScreenCameraActivity;
 import xiahohu.facetest.bean.MyMessage;
 import xiahohu.facetest.rx.RxBus;
 
