@@ -1,7 +1,9 @@
 package xiahohu.facetest.activity;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -9,6 +11,7 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -77,6 +80,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private boolean isOpenDoor = false;
     private String str;
     private boolean oo =true;
+    private MyService myService;
 
 
     /**
@@ -101,6 +105,28 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
     private Handler handler = new Handler();
 
+    private MyService.MsgBinder myBinder;
+
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            myBinder = (MyService.MsgBinder) service;
+            myBinder.initReadCard();
+            myService = myBinder.getService();
+            myService.setOnProgressListener(new MyService.OnDataListener() {
+                @Override
+                public void onMsg(String code) {
+                  card_no.setText(str);
+                  takePhoto();
+                }
+            });
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,12 +137,14 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         holder = camera_sf.getHolder();
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        startService(new Intent(this, MyService.class));
-        RxBus.getDefault().toObserverable(MyMessage.class).subscribe(myMessage -> {
-            str = myMessage.getNum();
-            card_no.setText(str);
-            takePhoto();
-        });
+//        startService(new Intent(this, MyService.class));
+//        RxBus.getDefault().toObserverable(MyMessage.class).subscribe(myMessage -> {
+//            str = myMessage.getNum();
+//            card_no.setText(str);
+//            takePhoto();
+//        });
+        Intent bindIntent = new Intent(this, MyService.class);
+        bindService(bindIntent, connection, BIND_AUTO_CREATE);
         device_id = MyUtil.getDeviceID(this);//获取设备号
         rkGpioControlNative.init();
     }
@@ -290,7 +318,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         super.onDestroy();
         closeCamera();
         FileUtil.deleteDir(FileUtil.getPath());
-        stopService( new Intent(this, MyService.class));
+       // stopService( new Intent(this, MyService.class));
+        unbindService(connection);
         adcNative.close(0);
         adcNative.close(2);
         rkGpioControlNative.close();

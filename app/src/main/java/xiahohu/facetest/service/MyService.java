@@ -2,6 +2,7 @@ package xiahohu.facetest.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -26,16 +27,26 @@ public class MyService extends Service {
     byte[] bytes1 = new byte[8];
     byte[] len = new byte[1];
     private int id;
+    /**
+     * 更新进度的回调接口
+     */
+    private OnDataListener onDataListener;
+
+    /**
+     * 注册回调接口的方法，供外部调用
+     * @param onProgressListener
+     */
+    public void setOnProgressListener(OnDataListener onProgressListener) {
+        this.onDataListener = onProgressListener;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        initReadCard();
+        id = ICCRF.rf_init(0,9600);
     }
 
-    private void initReadCard() {
-        id = ICCRF.rf_init(0,9600);
-        handler.postDelayed(runnable, TIME);
-    }
+
 
     Handler handler=new Handler();
 
@@ -49,7 +60,8 @@ public class MyService extends Service {
             }else {
                 ICCRF.rf_beep(id,10);//蜂鸣器
                 String str = MyUtil.toHexString1(bytes1);
-                RxBus.getDefault().post(new MyMessage(str));
+               // RxBus.getDefault().post(new MyMessage(str));
+                onDataListener.onMsg(str);
                 handler.postDelayed(this, TIME);
             }
         }
@@ -60,7 +72,6 @@ public class MyService extends Service {
     public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
-
         ICCRF.rf_rfinf_reset(Ultralight.id, (byte) 0);
         Ultralight.offLog();
         Ultralight.exit();
@@ -70,8 +81,20 @@ public class MyService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
 
-        return null;
+        return new MsgBinder();
     }
 
+    public class MsgBinder extends Binder {
 
+        public MyService getService(){
+            return MyService.this;
+        }
+        public void initReadCard() {
+            handler.postDelayed(runnable, TIME);
+        }
+
+    }
+    public interface OnDataListener {
+        void onMsg(String code);
+    }
 }
