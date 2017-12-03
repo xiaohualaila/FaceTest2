@@ -196,7 +196,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 bm.recycle();
                 bm1.recycle();
-                camera.startPreview();//开始预览
+                startPreview();
                 uploadPhoto();
             }
         }
@@ -369,11 +369,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         camera.startPreview();
     }
 
+    /* 停止预览 */
     private void stopPreview() {
-        if (null != camera) {
-            camera.stopPreview();
+        if (camera != null) {
+            try {
+                camera.stopPreview();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+
 
     public void setCameraDisplayOrientation(int cameraId, Camera camera) {
         Camera.CameraInfo info = new Camera.CameraInfo();
