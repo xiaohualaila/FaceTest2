@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <SurfaceView android:id="@+id/mSurfaceView"
+        android:layout_width="700sp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        />
+    <Button android:id="@+id/myButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        />
+    <Button android:id="@+id/myButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="button1"
+        android:layout_alignParentRight="true"
+        android:layout_above="@id/myButton"
+        />
+    <Button android:id="@+id/myButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="button2"
+        android:layout_alignParentRight="true"
+        android:layout_above="@id/myButton1"
+        />
+</RelativeLayout>
